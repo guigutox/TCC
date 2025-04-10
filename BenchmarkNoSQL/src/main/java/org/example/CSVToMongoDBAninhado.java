@@ -8,11 +8,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 public class CSVToMongoDBAninhado {
 
@@ -20,6 +16,7 @@ public class CSVToMongoDBAninhado {
         long startTime = System.currentTimeMillis();
         Map<String, Document> userDetailsMap = new HashMap<>();
         Map<String, Document> animeDetailsMap = new HashMap<>();
+        Map<String, List<Document>> userScoresMap = new HashMap<>();
 
         try {
             // Carregar user_details
@@ -28,41 +25,38 @@ public class CSVToMongoDBAninhado {
             // Carregar anime_details
             loadAnimeDetails(animeFile, animeDetailsMap);
 
-            // Carregar e combinar user_score
-            List<Document> batch = new ArrayList<>();
-            int batchSize = 1000;
-            int count = 0;
+            // Carregar e agrupar scores por usuário
             try (CSVParser parser = new CSVParser(new FileReader(scoreFile), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+                int batchSize = 1000;
                 for (CSVRecord record : parser) {
                     String userId = record.get("user_id");
                     String animeId = record.get("anime_id");
 
-                    Document combinedDoc = new Document()
-                            .append("user_id", userId)
-                            .append("Username", record.get("Username"))
+                    Document scoreDoc = new Document()
                             .append("anime_id", animeId)
                             .append("Anime Title", record.get("Anime Title"))
                             .append("rating", record.get("rating"))
-                            .append("user_details", userDetailsMap.getOrDefault(userId, new Document("info", "not found")))
                             .append("anime_details", animeDetailsMap.getOrDefault(animeId, new Document("info", "not found")));
 
-                    batch.add(combinedDoc);
-                    count++;
+                    userScoresMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(scoreDoc);
 
-                    if (batch.size() >= batchSize) {
-                        collection.insertMany(batch);
-                        System.out.println("Batch inserido: " + count + " registros no total.");
-                        batch.clear();
+                    // Quando atingir o limite de usuários únicos no mapa, insere os documentos
+                    if (userScoresMap.size() >= batchSize) {
+                        insertBatch(userScoresMap, userDetailsMap, collection);
+                        userScoresMap.clear();
                     }
                 }
-                if (!batch.isEmpty()) {
-                    collection.insertMany(batch);
-                    System.out.println("Último batch inserido: " + count + " registros no total.");
+
+                // Inserir registros restantes
+                if (!userScoresMap.isEmpty()) {
+                    insertBatch(userScoresMap, userDetailsMap, collection);
                 }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return System.currentTimeMillis() - startTime;
     }
 
@@ -126,5 +120,19 @@ public class CSVToMongoDBAninhado {
         }
     }
 
+    private static void insertBatch(Map<String, List<Document>> userScoresMap, Map<String, Document> userDetailsMap, MongoCollection<Document> collection) {
+        List<Document> batch = new ArrayList<>();
+        for (Map.Entry<String, List<Document>> entry : userScoresMap.entrySet()) {
+            String userId = entry.getKey();
+            List<Document> scores = entry.getValue();
 
+            Document original = userDetailsMap.getOrDefault(userId, new Document("info", "not found"));
+            Document userDoc = new Document(original); // clona o documento original
+            userDoc.append("scores", scores);
+            batch.add(userDoc);
+        }
+
+        collection.insertMany(batch);
+        System.out.println("Inserido batch com " + batch.size() + " documentos.");
+    }
 }

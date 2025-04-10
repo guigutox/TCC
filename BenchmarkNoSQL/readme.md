@@ -34,7 +34,7 @@ Rodar no cmd:
 
 3- Baixe o dataset do Kaggle e crie a pasta data dentro resources, insira os arquvivos csv os seguintes arquivos dentro dela:
 
-- Link para donwload do dataset: [Kaggle](https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset/data)
+- Link para download do dataset: [Kaggle](https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset/data)
 
 - anime-dataset-2023.csv
 - users-details-2023.csv
