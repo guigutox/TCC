@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner ler = new Scanner(System.in);
-        System.out.println("Definir metodo de insercao de dados: 1 - Normal, 2 - Aninhado");
+        System.out.println("Definir metodo de insercao de dados: 1 - Normal, 2 - Aninhado , 3 - Aninhado por anime");
         int op = ler.nextInt();
 
         if(op == 1){
@@ -44,8 +44,19 @@ public class Main {
             // Importação dos arquivos para uma única coleção no MongoDB
             long tempo = CSVToMongoDBAninhado.importCSV(animeDetailsCSV, userDetailsCSV, userScoreCSV, collection);
             System.out.println("Tempo total de inserção: " + tempo + "ms");
-        }
-        else{
+        } else if (op == 3) {
+            MongoDatabase database = MongoDBConnection.getDatabase("animeDB");
+            MongoCollection<Document> collection = database.getCollection("anime_data_by_anime");
+
+            // Caminhos dos arquivos CSV
+            String animeDetailsCSV = "./src/main/resources/data/anime-dataset-2023.csv";
+            String userDetailsCSV = "./src/main/resources/data/users-details-2023.csv";
+            String userScoreCSV = "./src/main/resources/data/users-score-2023.csv";
+
+            // Importação dos arquivos no novo formato (anime → scores → user)
+            long tempo = CSVToMongoDBAninhadoPorAnime.importCSV(animeDetailsCSV, userDetailsCSV, userScoreCSV, collection);
+            System.out.println("Tempo total de inserção (formato por anime): " + tempo + "ms");
+        } else{
             System.out.println("Opcao invalida");
         }
     }
