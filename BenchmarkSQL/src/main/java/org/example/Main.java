@@ -34,20 +34,99 @@ public class Main {
 
         long memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-    /*    long tempoAnimes = inserirAnimes();
+        criarTabelas();
+
+        long tempoAnimes = inserirAnimes();
+
         long tempoUsuarios = inserirUsarios();
+
+        long tempoAvaliacoes = inserirAvaliacoes();
 
         System.out.println("Tempo de execução para animes: " + tempoAnimes + "ms");
         System.out.println("Tempo de execução para usuarios: " + tempoUsuarios + "ms");
-        System.out.println("Tempo de execução total das insercoes: " + (tempoAnimes + tempoUsuarios) + "ms");*/
-
-        long tempoBusca = buscarAnime();
-        System.out.println("Tempo de execução para buscar animes: " + buscarAnime() + "ms");
-
-
-        long tempoAvaliacoes = inserirAvaliacoes();
         System.out.println("Tempo de execução para inserir avaliações: " + tempoAvaliacoes + "ms");
 
+        System.out.println("Tempo de execução total das insercoes: " + (tempoAnimes + tempoUsuarios + tempoAvaliacoes) + "ms");
+
+
+        long tempoBusca = realizarQuery("EXPLAIN ANALYZE SELECT * FROM anime");
+        System.out.println("Tempo de execução para busca: " + tempoBusca + "ms");
+
+    }
+
+    private static void criarTabelas() {
+        System.out.println("⏳ Verificando e criando tabelas...");
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement statement = connection.createStatement()) {
+
+            // Desativar verificações de FK temporariamente para evitar erros durante a criação
+            statement.execute("SET CONSTRAINTS ALL DEFERRED");
+
+            // Tabela anime
+            String createAnimeTable = "CREATE TABLE IF NOT EXISTS anime (" +
+                    "anime_id INT PRIMARY KEY, " +
+                    "name VARCHAR(255), " +
+                    "english_name VARCHAR(255), " +
+                    "other_name VARCHAR(255), " +
+                    "score FLOAT, " +
+                    "genres TEXT, " +
+                    "synopsis TEXT, " +
+                    "type VARCHAR(50), " +
+                    "episodes INT, " +
+                    "aired VARCHAR(100), " +
+                    "premiered VARCHAR(50), " +
+                    "status VARCHAR(50), " +
+                    "producers TEXT, " +
+                    "licensors TEXT, " +
+                    "studios TEXT, " +
+                    "source VARCHAR(100), " +
+                    "duration VARCHAR(50), " +
+                    "rating VARCHAR(50), " +
+                    "rank INT, " +
+                    "popularity INT, " +
+                    "favorites INT, " +
+                    "scored_by INT, " +
+                    "members INT, " +
+                    "image_url TEXT)";
+            statement.execute(createAnimeTable);
+
+            // Tabela user_details
+            String createUserDetailsTable = "CREATE TABLE IF NOT EXISTS user_details (" +
+                    "Mal_ID INT PRIMARY KEY, " +
+                    "Username VARCHAR(255), " +
+                    "Gender VARCHAR(10), " +
+                    "Birthday VARCHAR(50), " +
+                    "Location VARCHAR(255), " +
+                    "Joined VARCHAR(50), " +
+                    "Days_Watched INT, " +
+                    "Mean_Score INT, " +
+                    "Watching INT, " +
+                    "Completed INT, " +
+                    "On_Hold INT, " +
+                    "Dropped INT, " +
+                    "Plan_to_Watch INT, " +
+                    "Total_Entries INT, " +
+                    "Rewatched INT, " +
+                    "Episodes_Watched INT)";
+            statement.execute(createUserDetailsTable);
+
+            // Tabela user_score
+            String createUserScoreTable = "CREATE TABLE IF NOT EXISTS user_score (" +
+                    "user_id INT, " +
+                    "anime_id INT, " +
+                    "rating INT, " +
+                    "PRIMARY KEY (user_id, anime_id), " +
+                    "FOREIGN KEY (user_id) REFERENCES user_details(Mal_ID), " +
+                    "FOREIGN KEY (anime_id) REFERENCES anime(anime_id))";
+            statement.execute(createUserScoreTable);
+
+            System.out.println("✅ Tabelas verificadas/criadas com sucesso!");
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erro ao criar tabelas: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private static long inserirAvaliacoes() {
@@ -239,7 +318,7 @@ public class Main {
         return 0;
     }
 
-    // ✅ Método atualizado para converter corretamente números inteiros e decimais
+
     private static void setStatementValue(PreparedStatement stmt, int index, String value, int sqlType) throws SQLException {
         if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("UNKNOWN")) {
             stmt.setNull(index, sqlType);
@@ -346,15 +425,14 @@ public class Main {
 
 
 
-    private static long buscarAnime() {
+    private static long realizarQuery(String query) {
 
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              Statement statement = connection.createStatement()) {
             long startTime = System.nanoTime();
-            ResultSet rs = statement.executeQuery("EXPLAIN ANALYZE SELECT * FROM anime");
+            ResultSet rs = statement.executeQuery(query);
             long endTime = System.nanoTime();
-            long duration = (endTime - startTime) / 1000000; // Converter para milissegundos
-
+            long duration = (endTime - startTime) / 1000000;
 
             try {
                 while (rs != null && rs.next()) {
