@@ -48,7 +48,7 @@ public class Main {
 
         System.out.println("Tempo de execução total das insercoes: " + (tempoAnimes + tempoUsuarios + tempoAvaliacoes) + "ms");
 
-
+        //FAZER BUSCA, PASSA A QUERY COMO PARAMETRO
         long tempoBusca = realizarQuery("EXPLAIN ANALYZE SELECT * FROM anime");
         System.out.println("Tempo de execução para busca: " + tempoBusca + "ms");
 

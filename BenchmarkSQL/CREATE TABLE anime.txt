@@ -1,0 +1,79 @@
+CREATE TABLE anime (
+    anime_id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    english_name VARCHAR(255),
+    other_name VARCHAR(255),
+    score NUMERIC,
+    genres TEXT,
+    synopsis TEXT,
+    type VARCHAR(50),
+    episodes INT,
+    aired VARCHAR(50),
+    premiered VARCHAR(50),
+    status VARCHAR(50),
+    producers TEXT,
+    licensors TEXT,
+    studios TEXT,
+    source VARCHAR(50),
+    duration VARCHAR(50),
+    rating VARCHAR(50),
+    rank INT,
+    popularity INT,
+    favorites INT,
+    scored_by INT,
+    members INT,
+    image_url TEXT
+);
+
+drop table anime;
+drop table user_ratings;
+
+select * from anime where anime_id > 1045;
+
+SELECT COUNT(*) FROM anime;
+
+select * from user_ratings;
+
+CREATE TABLE user_ratings (
+    user_id INT,
+    username VARCHAR(255),
+    anime_id INT,
+    anime_title VARCHAR(255),
+    rating NUMERIC
+);
+
+
+CREATE TABLE anime (
+    anime_id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    english_name VARCHAR(255),
+    other_name VARCHAR(255),
+    score NUMERIC,
+    genres TEXT,
+    synopsis TEXT,
+    type VARCHAR(50),
+    episodes INT,
+    aired VARCHAR(50),
+    premiered VARCHAR(50),
+    status VARCHAR(50),
+    producers TEXT,
+    licensors TEXT,
+    studios TEXT,
+    source VARCHAR(50),
+    duration VARCHAR(50),
+    rating VARCHAR(50),
+    rank INT,
+    popularity INT,
+    favorites INT,
+    scored_by INT,
+    members INT,
+    image_url TEXT
+);
+
+CREATE TABLE user_ratings (
+    user_id INT,
+    username VARCHAR(255),
+    anime_id INT REFERENCES anime(anime_id), -- Chave estrangeira
+    anime_title VARCHAR(255),
+    rating NUMERIC
+);
