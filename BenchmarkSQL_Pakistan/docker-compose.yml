@@ -6,22 +6,22 @@ networks:
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres_db
+    container_name: postgres_db_pakistan
     restart: always
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: anime
+      POSTGRES_DB: pakistan
     ports:
       - "5432:5432"
     volumes:
-      - d:/TCC/TCC-DB-DATA/ANIME-SQL/postgres:/var/lib/postgresql/data
+      - d:/TCC/TCC-DB-DATA/PAKISTAN-SQL/postgres:/var/lib/postgresql/data
     networks:
       - db_network
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin_pakistan
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com

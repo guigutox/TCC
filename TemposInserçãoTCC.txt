@@ -1,0 +1,52 @@
+PRIMEIRA INSERÇÂO SQL ANIME
+
+✅ Inserção concluída. Total de linhas inseridas: 23803020
+Tempo de execução para animes: 1739ms
+Tempo de execução para usuarios: 15555ms
+Tempo de execução para inserir avaliações: 22325810ms
+Tempo de execução total das insercoes: 22343104ms
+Seq Scan on anime  (cost=0.00..2218.05 rows=24905 width=653) (actual time=0.017..6.748 rows=24905 loops=1)
+Planning Time: 3.401 ms
+Execution Time: 7.448 ms
+Tempo de execução para busca: 13ms
+
+
+
+
+PRIMEIRA INSERÇÃO SQL PAKISTAN
+
+✅ Total de linhas inseridas: 584493
+⏱️ Tempo total de inserção: 16233 ms
+Seq Scan on pakistan_orders  (cost=0.00..19176.93 rows=584493 width=137) (actual time=0.013..35.495 rows=584493 loops=1)
+Planning Time: 3.443 ms
+Execution Time: 49.679 ms
+Tempo de execução para busca: 60ms
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+TEMPO DE INSERÇÃO NOSQL usuários com animes dentro:
+
+Tempo total de inserção: 2962152ms
+Total de documentos: 271k
+Armazenamento: 21GB
+
+
+TEMPO DE INSERÇÃO NOSQL usuários com animes dentro, todos os registros:
+
+Tempo total de inserção:  3146153ms
+Total de documentos: 738k
+Armazenamento: 21,17GB
+
+
+TEMPO NO SQL PAKISTAN PRIMEIRA TENTATIVA:
+✅ Total de documentos inseridos: 584536
+⏱️ Tempo total de inserção: 10695 ms
+
+
+
+
+

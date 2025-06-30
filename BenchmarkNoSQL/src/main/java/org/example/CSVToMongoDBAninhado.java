@@ -27,7 +27,7 @@ public class CSVToMongoDBAninhado {
 
             // Carregar e agrupar scores por usuário
             try (CSVParser parser = new CSVParser(new FileReader(scoreFile), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-                int batchSize = 1000;
+                int batchSize = 500;
                 for (CSVRecord record : parser) {
                     String userId = record.get("user_id");
                     String animeId = record.get("anime_id");
@@ -47,10 +47,14 @@ public class CSVToMongoDBAninhado {
                     }
                 }
 
+
                 // Inserir registros restantes
                 if (!userScoresMap.isEmpty()) {
                     insertBatch(userScoresMap, userDetailsMap, collection);
                 }
+
+                inserirUsuariosSemAvaliacoes(userDetailsMap, collection);
+
             }
 
         } catch (IOException e) {
@@ -135,4 +139,26 @@ public class CSVToMongoDBAninhado {
         collection.insertMany(batch);
         System.out.println("Inserido batch com " + batch.size() + " documentos.");
     }
+
+    private static void inserirUsuariosSemAvaliacoes(Map<String, Document> userDetailsMap, MongoCollection<Document> collection) {
+        Set<String> usuariosJaInseridos = new HashSet<>(collection.distinct("Mal ID", String.class).into(new ArrayList<>()));
+        List<Document> usuariosSemAvaliacoes = new ArrayList<>();
+
+        for (Map.Entry<String, Document> entry : userDetailsMap.entrySet()) {
+            String userId = entry.getKey();
+            if (!usuariosJaInseridos.contains(userId)) {
+                Document userDoc = new Document(entry.getValue()); // clona os dados
+                userDoc.append("scores", Collections.emptyList());
+                usuariosSemAvaliacoes.add(userDoc);
+            }
+        }
+
+        int batchSize = 500;
+        for (int i = 0; i < usuariosSemAvaliacoes.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, usuariosSemAvaliacoes.size());
+            collection.insertMany(usuariosSemAvaliacoes.subList(i, end));
+            System.out.println("Inserido batch de usuários sem avaliações: " + (end - i));
+        }
+    }
+
 }

@@ -39,8 +39,13 @@ build/
 .DS_Store
 
 ### Data Directory ###
-BenchmarkSQL/src/main/resources/data/
+BenchmarkSQL_Pakistan/src/main/resources/data/
+BenchmarkNoSQL_Pakistan/src/main/resources/data/
 BenchmarkNoSQL/src/main/resources/data/
+BenchmarkSQL/src/main/resources/data/
+
 
 .env
+
+/TCC-DB-DATA/
 

@@ -11,4 +11,4 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
-      - d:/mongo-data:/data/db
+      - d:/TCC/TCC-DB-DATA/mongo:/data/db

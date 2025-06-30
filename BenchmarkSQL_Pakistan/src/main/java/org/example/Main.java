@@ -4,8 +4,8 @@ import java.sql.*;
 
 public class Main {
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/pakistan";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "postgress";
+    private static final String DB_USER = "admin";
+    private static final String DB_PASSWORD = "password";
 
     public static void main(String[] args) {
         String filePath = "./src/main/resources/data/PakistanLargestEcommerceDataset.csv";

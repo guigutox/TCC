@@ -9,8 +9,8 @@ import java.util.Date;
 public class PakistanImporter {
 
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/pakistan";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "postgress";
+    private static final String DB_USER = "admin";
+    private static final String DB_PASSWORD = "password";
 
     public void createTableIfNotExists() {
         String sql = """
