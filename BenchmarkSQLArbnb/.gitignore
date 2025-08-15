@@ -21,7 +21,6 @@ target/
 .springBeans
 .sts4-cache
 
-
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -37,16 +36,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
-
-### Data Directory ###
-BenchmarkSQL_Pakistan/src/main/resources/data/
-BenchmarkNoSQL_Pakistan/src/main/resources/data/
-BenchmarkNoSQL/src/main/resources/data/
-BenchmarkSQL/src/main/resources/data/
-BenchmarkSQL/src/main/resources/data/
-BenchmarkSQLArbnb/src/main/resources/data/
-
-.env
-
-/TCC-DB-DATA/
 

@@ -166,4 +166,15 @@ public class PakistanImporter {
             return null;
         }
     }
+
+    public void clearTable() {
+        String sql = "TRUNCATE TABLE pakistan_orders";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("✅ Tabela limpa com sucesso.");
+        } catch (SQLException e) {
+            System.err.println("❌ Erro ao limpar tabela: " + e.getMessage());
+        }
+    }
 }

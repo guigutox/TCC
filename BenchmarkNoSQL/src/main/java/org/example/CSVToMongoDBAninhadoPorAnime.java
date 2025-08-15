@@ -13,55 +13,74 @@ import java.util.*;
 
 public class CSVToMongoDBAninhadoPorAnime {
 
-    private static final int BATCH_SIZE = 1000;
+    private static final int CHUNK_SIZE = 500;
+    private static final int BATCH_SIZE = 500;
 
     public static long importCSV(String animeFile, String userFile, String scoreFile, MongoCollection<Document> collection) {
         long startTime = System.currentTimeMillis();
         Map<String, Document> userDetailsMap = new HashMap<>();
         Map<String, Document> animeDetailsMap = new HashMap<>();
+        Map<String, List<Document>> lotePorAnime = new HashMap<>();
+        Map<String, Integer> chunkPorAnime = new HashMap<>();
+        List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+        int totalRegistrosInseridos = 0;
 
         try {
             loadUserDetails(userFile, userDetailsMap);
             loadAnimeDetails(animeFile, animeDetailsMap);
 
-            List<WriteModel<Document>> bulkOperations = new ArrayList<>();
-
             try (CSVParser parser = new CSVParser(new FileReader(scoreFile), CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
                 for (CSVRecord record : parser) {
                     String animeId = record.get("anime_id");
                     String userId = record.get("user_id");
-
                     Document userDoc = userDetailsMap.getOrDefault(userId, new Document("info", "not found"));
                     Document scoreDoc = new Document()
                             .append("user_id", userId)
                             .append("rating", record.get("rating"))
                             .append("user_details", userDoc);
 
-                    Document animeInfo = animeDetailsMap.getOrDefault(animeId,
-                            new Document("anime_id", animeId).append("info", "not found"));
+                    List<Document> lote = lotePorAnime.computeIfAbsent(animeId, k -> new ArrayList<>());
+                    lote.add(scoreDoc);
 
-                    UpdateOneModel<Document> update = new UpdateOneModel<>(
-                            Filters.eq("anime_id", animeId),
-                            Updates.combine(
-                                    Updates.setOnInsert("anime_id", animeId),
-                                    Updates.setOnInsert("info", animeInfo),
-                                    Updates.push("scores", scoreDoc)
-                            ),
-                            new UpdateOptions().upsert(true)
-                    );
-
-                    bulkOperations.add(update);
+                    if (lote.size() == CHUNK_SIZE) {
+                        int chunk = chunkPorAnime.getOrDefault(animeId, 0);
+                        Document animeInfo = animeDetailsMap.getOrDefault(animeId,
+                                new Document("anime_id", animeId).append("info", "not found"));
+                        Document doc = new Document("anime_id", animeId)
+                                .append("chunk", chunk)
+                                .append("info", animeInfo)
+                                .append("scores", new ArrayList<>(lote));
+                        bulkOperations.add(new InsertOneModel<>(doc));
+                        totalRegistrosInseridos += lote.size();
+                        lote.clear();
+                        chunkPorAnime.put(animeId, chunk + 1);
+                    }
 
                     if (bulkOperations.size() == BATCH_SIZE) {
                         collection.bulkWrite(bulkOperations, new BulkWriteOptions().ordered(false));
+                        System.out.println("Batch inserido! Total de registros inseridos até agora: " + totalRegistrosInseridos);
                         bulkOperations.clear();
                     }
                 }
+            }
 
-                if (!bulkOperations.isEmpty()) {
-                    collection.bulkWrite(bulkOperations, new BulkWriteOptions().ordered(false));
+            for (Map.Entry<String, List<Document>> entry : lotePorAnime.entrySet()) {
+                if (!entry.getValue().isEmpty()) {
+                    int chunk = chunkPorAnime.getOrDefault(entry.getKey(), 0);
+                    Document animeInfo = animeDetailsMap.getOrDefault(entry.getKey(),
+                            new Document("anime_id", entry.getKey()).append("info", "not found"));
+                    Document doc = new Document("anime_id", entry.getKey())
+                            .append("chunk", chunk)
+                            .append("info", animeInfo)
+                            .append("scores", new ArrayList<>(entry.getValue()));
+                    bulkOperations.add(new InsertOneModel<>(doc));
+                    totalRegistrosInseridos += entry.getValue().size();
+                    chunkPorAnime.put(entry.getKey(), chunk + 1);
                 }
-
+            }
+            if (!bulkOperations.isEmpty()) {
+                collection.bulkWrite(bulkOperations, new BulkWriteOptions().ordered(false));
+                System.out.println("Batch inserido! Total de registros inseridos até agora: " + totalRegistrosInseridos);
             }
 
         } catch (IOException e) {

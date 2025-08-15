@@ -1,3 +1,4 @@
+// src/main/java/org/example/Main.java
 package org.example;
 
 import java.sql.*;
@@ -6,42 +7,39 @@ public class Main {
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/pakistan";
     private static final String DB_USER = "admin";
     private static final String DB_PASSWORD = "password";
+    private static final String CSV_PATH = "./src/main/resources/data/PakistanLargestEcommerceDataset.csv";
 
     public static void main(String[] args) {
-        String filePath = "./src/main/resources/data/PakistanLargestEcommerceDataset.csv";
-
         PakistanImporter importer = new PakistanImporter();
-        importer.createTableIfNotExists();
-        long duration = importer.importData(filePath);
-        System.out.println("⏱️ Tempo total de inserção: " + duration + " ms");
+        java.util.Scanner scanner = new java.util.Scanner(System.in);
 
-        long tempoBusca = realizarQuery("EXPLAIN ANALYZE SELECT * FROM pakistan_orders");
-        System.out.println("Tempo de execução para busca: " + tempoBusca + "ms");
+        while (true) {
+            System.out.println("\nMenu:");
+            System.out.println("1 - Criar tabela");
+            System.out.println("2 - Importar dados");
+            System.out.println("3 - Limpar tabela");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha uma opção: ");
+            int opcao = scanner.nextInt();
+            scanner.nextLine(); // consumir quebra de linha
 
-    }
-    private static long realizarQuery(String query) {
-
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement statement = connection.createStatement()) {
-            long startTime = System.nanoTime();
-            ResultSet rs = statement.executeQuery(query);
-            long endTime = System.nanoTime();
-            long duration = (endTime - startTime) / 1000000;
-
-            try {
-                while (rs != null && rs.next()) {
-                    //System.out.println("Anime: " + rs.getString("name") + " | Score: " + rs.getFloat("score"));
-                    System.out.println(rs.getString("QUERY PLAN"));
-                }
-                return duration;
-            } catch (SQLException e) {
-                System.err.println("❌ Erro ao processar o resultado: " + e.getMessage());
+            switch (opcao) {
+                case 1:
+                    importer.createTableIfNotExists();
+                    break;
+                case 2:
+                    long tempo = importer.importData(CSV_PATH);
+                    System.out.println("Tempo de importação: " + tempo + " ms");
+                    break;
+                case 3:
+                    importer.clearTable();
+                    break;
+                case 0:
+                    System.out.println("Saindo...");
+                    return;
+                default:
+                    System.out.println("Opção inválida.");
             }
-
-        } catch (SQLException e) {
-            System.err.println("❌ Erro ao executar a query: " + e.getMessage());
-
         }
-        return 0;
     }
 }

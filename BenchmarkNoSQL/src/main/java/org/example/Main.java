@@ -64,12 +64,10 @@ public class Main {
                 System.out.println("Tempo total de inserção (formato por anime): " + tempo + "ms");
             }else if (op == 4) {
                 MongoDatabase database = MongoDBConnection.getDatabase("animeDB");
-                MongoCollection<Document> collection = database.getCollection("anime_data_by_anime");
-                // Exemplo: buscar animes com mais de 200 scores
-                Document exprQuery = new Document("$gt", Arrays.asList(
-                        new Document("$size", "$scores"), 200
-                ));
-                BenchmarkUtils.executarQueryComTempo(collection, Filters.expr(exprQuery));
+                MongoCollection<Document> collection = database.getCollection("anime_data");
+
+
+                BenchmarkUtils.executarAggregacaoComTempo(collection, BenchmarkUtils.getAllPipelines());
             }
             else{
                 System.out.println("Opcao invalida");

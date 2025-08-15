@@ -11,7 +11,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import io.github.cdimascio.dotenv.Dotenv;
-
+import java.util.Scanner;
 
 public class Main {
 
@@ -27,31 +27,95 @@ public class Main {
    // private static final String DB_USER = "postgres";
     //private static final String DB_PASSWORD = "postgress";
 
+
+
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("Escolha a operação:");
+            System.out.println("[1] Inserção");
+            System.out.println("[2] Consulta");
+            System.out.println("[3] Limpar banco");
+            System.out.println("[0] Sair");
+            String opcao = scanner.nextLine().trim();
 
-        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            switch (opcao) {
+                case "1":
+                    criarTabelas();
+                    long tempoAnimes = inserirAnimes();
+                    long tempoUsuarios = inserirUsarios();
+                    long tempoAvaliacoes = inserirAvaliacoes();
 
-
-        long memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-        criarTabelas();
-
-        long tempoAnimes = inserirAnimes();
-
-        long tempoUsuarios = inserirUsarios();
-
-        long tempoAvaliacoes = inserirAvaliacoes();
-
-        System.out.println("Tempo de execução para animes: " + tempoAnimes + "ms");
-        System.out.println("Tempo de execução para usuarios: " + tempoUsuarios + "ms");
-        System.out.println("Tempo de execução para inserir avaliações: " + tempoAvaliacoes + "ms");
-
-        System.out.println("Tempo de execução total das insercoes: " + (tempoAnimes + tempoUsuarios + tempoAvaliacoes) + "ms");
-
-        //FAZER BUSCA, PASSA A QUERY COMO PARAMETRO
-        long tempoBusca = realizarQuery("EXPLAIN ANALYZE SELECT * FROM anime");
-        System.out.println("Tempo de execução para busca: " + tempoBusca + "ms");
-
+                    System.out.println("Tempo de execução para animes: " + tempoAnimes + "ms");
+                    System.out.println("Tempo de execução para usuarios: " + tempoUsuarios + "ms");
+                    System.out.println("Tempo de execução para inserir avaliações: " + tempoAvaliacoes + "ms");
+                    System.out.println("Tempo de execução total das insercoes: " + (tempoAnimes + tempoUsuarios + tempoAvaliacoes) + "ms");
+                    break;
+                case "2":
+                    String[] queries = {
+                            "EXPLAIN ANALYZE SELECT name FROM anime",
+                            "EXPLAIN ANALYZE SELECT Username, rating FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID",
+                            "EXPLAIN ANALYZE SELECT name, score FROM anime",
+                            "EXPLAIN ANALYZE SELECT name, rank, popularity, favorites FROM anime",
+                            "EXPLAIN ANALYZE SELECT ud.Username, us.anime_id FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID",
+                            "EXPLAIN ANALYZE SELECT name, score FROM anime WHERE score > 9",
+                            "EXPLAIN ANALYZE SELECT Username, rating FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID WHERE rating > 8",
+                            "EXPLAIN ANALYZE SELECT name FROM anime WHERE type = 'Movie'",
+                            "EXPLAIN ANALYZE SELECT name, studios FROM anime WHERE studios ILIKE '%Madhouse%'",
+                            "EXPLAIN ANALYZE SELECT user_id, anime_id, rating FROM user_score WHERE anime_id > 1000",
+                            "EXPLAIN ANALYZE SELECT ud.Username, a.name FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID JOIN anime a ON us.anime_id = a.anime_id",
+                            "EXPLAIN ANALYZE SELECT a.name, us.rating FROM user_score us JOIN anime a ON us.anime_id = a.anime_id",
+                            "EXPLAIN ANALYZE SELECT ud.Username, a.name, a.score FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID JOIN anime a ON us.anime_id = a.anime_id",
+                            "EXPLAIN ANALYZE SELECT DISTINCT ud.Username FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID JOIN anime a ON us.anime_id = a.anime_id WHERE a.genres ILIKE '%Action%'",
+                            "EXPLAIN ANALYZE SELECT a.name, ud.Username FROM user_score us JOIN anime a ON us.anime_id = a.anime_id JOIN user_details ud ON us.user_id = ud.Mal_ID",
+                            "EXPLAIN ANALYZE SELECT a.name, ud.Username FROM user_score us JOIN anime a ON us.anime_id = a.anime_id JOIN user_details ud ON us.user_id = ud.Mal_ID WHERE a.members > 100000",
+                            "EXPLAIN ANALYZE SELECT ud.Username, a.name, us.rating FROM user_score us JOIN user_details ud ON us.user_id = ud.Mal_ID JOIN anime a ON us.anime_id = a.anime_id WHERE us.rating > 9 AND a.score < 7",
+                            "EXPLAIN ANALYZE SELECT a.name FROM user_score us JOIN anime a ON us.anime_id = a.anime_id WHERE us.rating = 10 AND a.licensors ILIKE '%Funimation%'",
+                            "EXPLAIN ANALYZE SELECT COUNT(*) AS total_romance_baixa_nota FROM user_score us JOIN anime a ON us.anime_id = a.anime_id WHERE a.genres ILIKE '%Romance%' AND us.rating < 6",
+                            "EXPLAIN ANALYZE SELECT DISTINCT ud.Username FROM user_score us JOIN anime a ON us.anime_id = a.anime_id JOIN user_details ud ON us.user_id = ud.Mal_ID WHERE a.type = 'OVA' AND us.rating > 7",
+                            "EXPLAIN ANALYZE SELECT name, genres FROM anime",
+                            "EXPLAIN ANALYZE SELECT username FROM user_details",
+                            "EXPLAIN ANALYZE SELECT anime_title, rating FROM user_score JOIN anime ON user_score.anime_id = anime.anime_id",
+                            "EXPLAIN ANALYZE SELECT * FROM user_details WHERE gender = 'Male'",
+                            "EXPLAIN ANALYZE SELECT name, image_url FROM anime WHERE image_url LIKE 'https%'",
+                            "EXPLAIN ANALYZE SELECT anime_title FROM user_score WHERE user_id = 68110",
+                            "EXPLAIN ANALYZE SELECT anime_title FROM user_score WHERE user_id = 68110 AND rating > 3",
+                            "EXPLAIN ANALYZE SELECT a.name FROM user_score us JOIN anime a ON us.anime_id = a.anime_id WHERE us.user_id = 68110 AND us.rating > 3",
+                            "EXPLAIN ANALYZE SELECT * FROM user_details WHERE TO_DATE(joined, 'YYYY-MM-DD\"T\"HH24:MI:SS\"+00:00\"') > '2015-01-01'",
+                            "EXPLAIN ANALYZE SELECT name, SUBSTRING(image_url FROM 'https?://([^/]+)') AS domain FROM anime",
+                            "EXPLAIN ANALYZE SELECT u.username, a.name, s.rating FROM user_score s JOIN user_details u ON s.user_id = u.Mal_ID JOIN anime a ON s.anime_id = a.anime_id",
+                            "EXPLAIN ANALYZE SELECT DISTINCT a.name FROM user_details u JOIN user_score s ON u.Mal_ID = s.user_id JOIN anime a ON s.anime_id = a.anime_id WHERE u.gender = 'Female'",
+                            "EXPLAIN ANALYZE SELECT a.name, AVG(s.rating) AS media_nota FROM anime a JOIN user_score s ON a.anime_id = s.anime_id GROUP BY a.name",
+                            "EXPLAIN ANALYZE SELECT u.username, AVG(s.rating) AS media FROM user_details u JOIN user_score s ON u.Mal_ID = s.user_id GROUP BY u.username",
+                            "EXPLAIN ANALYZE SELECT u.username, COUNT(s.anime_id) AS total_animes, AVG(s.rating) AS media_score FROM user_details u JOIN user_score s ON u.Mal_ID = s.user_id GROUP BY u.username HAVING COUNT(s.anime_id) > 10",
+                            "EXPLAIN ANALYZE SELECT a.name, AVG(s.rating) AS media_score FROM user_details u JOIN user_score s ON u.Mal_ID = s.user_id JOIN anime a ON s.anime_id = a.anime_id WHERE u.gender = 'Male' AND a.genres ILIKE '%Action%' GROUP BY a.name",
+                            "EXPLAIN ANALYZE SELECT EXTRACT(YEAR FROM AGE(TO_DATE(birthday, 'YYYY-MM-DD'))) AS idade, AVG(s.rating) AS media_score FROM user_details u JOIN user_score s ON u.Mal_ID = s.user_id WHERE birthday IS NOT NULL GROUP BY idade ORDER BY idade",
+                            "EXPLAIN ANALYZE SELECT a.name, a.popularity, AVG(s.rating) AS media FROM anime a JOIN user_score s ON a.anime_id = s.anime_id GROUP BY a.anime_id ORDER BY a.popularity ASC, media DESC LIMIT 5",
+                            "EXPLAIN ANALYZE SELECT gender, COUNT(*) AS qtd_usuarios, AVG(s.rating) AS media_score FROM user_details u JOIN user_score s ON u.Mal_ID = s.user_id WHERE gender IS NOT NULL GROUP BY gender",
+                            "EXPLAIN ANALYZE SELECT a.name, AVG(s.rating) AS media FROM anime a JOIN user_score s ON a.anime_id = s.anime_id WHERE a.aired ~ '([0-9]{4})' AND CAST(SUBSTRING(a.aired FROM '([0-9]{4})') AS INT) < 2010 GROUP BY a.name HAVING AVG(s.rating) > 8",
+                            "EXPLAIN ANALYZE SELECT AVG(EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM TO_DATE(Birthday, 'YYYY-MM-DD'))) AS media_idade FROM user_details ud JOIN user_score us ON ud.Mal_ID = us.user_id WHERE us.anime_id = 1",
+                            "EXPLAIN ANALYZE SELECT Gender, COUNT(*) AS total FROM user_details GROUP BY Gender",
+                            "EXPLAIN ANALYZE SELECT * FROM user_details WHERE TO_DATE(Joined, 'YYYY-MM-DD') > '2020-01-01'",
+                            "EXPLAIN ANALYZE SELECT SUBSTRING(image_url FROM 'https://[^ ]*') AS url_limpa FROM anime",
+                            "EXPLAIN ANALYZE SELECT a.* FROM anime a JOIN user_score us ON a.anime_id = us.anime_id JOIN user_details ud ON ud.Mal_ID = us.user_id WHERE ud.Username = 'Guilherme'",
+                            "EXPLAIN ANALYZE SELECT a.* FROM anime a JOIN user_score us ON a.anime_id = us.anime_id JOIN user_details ud ON ud.Mal_ID = us.user_id WHERE ud.Username = 'Guilherme' AND us.rating > 3",
+                            "EXPLAIN ANALYZE SELECT a.name FROM anime a JOIN user_score us ON a.anime_id = us.anime_id JOIN user_details ud ON ud.Mal_ID = us.user_id WHERE ud.Username = 'Guilherme' AND us.rating > 3",
+                            "EXPLAIN ANALYZE SELECT a.name, us.rating, ud.Username FROM anime a JOIN user_score us ON a.anime_id = us.anime_id JOIN user_details ud ON us.user_id = ud.Mal_ID",
+                            "EXPLAIN ANALYZE SELECT AVG(us.rating) AS media_rating FROM user_details ud JOIN user_score us ON ud.Mal_ID = us.user_id JOIN anime a ON a.anime_id = us.anime_id WHERE EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM TO_DATE(ud.Birthday, 'YYYY-MM-DD')) = 25 AND a.genres ILIKE '%Action%'"
+                    };
+                    executarQueriesComTempo(queries);
+                    break;
+                case "3":
+                    limparBanco();
+                    break;
+                case "0":
+                    System.out.println("Encerrando...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Opção inválida. Escolha 1, 2, 3 ou 0.");
+            }
+        }
     }
 
     private static void criarTabelas() {
@@ -450,6 +514,49 @@ public class Main {
         }
         return 0;
     }
+
+    private static void executarQueriesComTempo(String[] queries) {
+        int totalQueriesExecutadas = 0;
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement statement = connection.createStatement()) {
+            for (int i = 0; i < queries.length; i++) {
+                String query = queries[i];
+                System.out.println((i + 1) + "º query:");
+                long startTime = System.nanoTime();
+                ResultSet rs = statement.executeQuery(query);
+                long endTime = System.nanoTime();
+                long duration = (endTime - startTime) / 1_000_000;
+                System.out.println("Tempo de execução: " + duration + "ms");
+
+                while (rs != null && rs.next()) {
+                    System.out.println(rs.getString("QUERY PLAN"));
+                }
+                totalQueriesExecutadas++;
+            }
+            System.out.println("Total de queries executadas: " + totalQueriesExecutadas);
+        } catch (SQLException e) {
+            System.err.println("Erro ao executar queries: " + e.getMessage());
+        }
+    }
+
+    private static void limparBanco() {
+        System.out.println("⏳ Limpando todas as tabelas...");
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement statement = connection.createStatement()) {
+
+            // Desativa restrições de FK
+            statement.execute("SET CONSTRAINTS ALL DEFERRED");
+
+            // Limpa as tabelas
+            statement.execute("TRUNCATE TABLE user_score, user_details, anime RESTART IDENTITY CASCADE");
+
+            System.out.println("✅ Banco limpo com sucesso!");
+        } catch (SQLException e) {
+            System.err.println("❌ Erro ao limpar banco: " + e.getMessage());
+        }
+    }
+
+
 
 
 

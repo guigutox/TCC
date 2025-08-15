@@ -48,5 +48,14 @@ TEMPO NO SQL PAKISTAN PRIMEIRA TENTATIVA:
 
 
 
+SEGUNDA RODADA:
+
+✅ Inserção concluída. Total de linhas inseridas: 23803020
+Tempo de execução para animes: 3847ms
+Tempo de execução para usuarios: 60504ms
+Tempo de execução para inserir avaliações: 23113202ms
+Tempo de execução total das insercoes: 23177553ms
+
+
 
 
