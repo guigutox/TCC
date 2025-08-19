@@ -1,3 +1,4 @@
+// src/main/java/org/example/Repository/ListingRepositoryMongo.java
 package org.example.Repository;
 
 import com.mongodb.client.MongoCollection;
@@ -21,6 +22,7 @@ public class ListingRepositoryMongo {
 
     public void saveAll(Map<String, Listing> listings) {
         List<Document> batch = new ArrayList<>();
+        int totalReviews = 0;
 
         for (Listing listing : listings.values()) {
             Document doc = new Document("id", listing.getId())
@@ -50,6 +52,7 @@ public class ListingRepositoryMongo {
                         .append("reviewerName", r.getReviewerName())
                         .append("comments", r.getComments());
                 reviewsDocs.add(rDoc);
+                totalReviews++;
             }
 
             doc.append("reviews", reviewsDocs);
@@ -64,5 +67,7 @@ public class ListingRepositoryMongo {
         if (!batch.isEmpty()) {
             collection.insertMany(batch);
         }
+
+        System.out.println("Total de reviews inseridos: " + totalReviews);
     }
 }
