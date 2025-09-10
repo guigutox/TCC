@@ -9,6 +9,8 @@ import org.bson.Document;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MongoImporter {
@@ -36,6 +38,8 @@ public class MongoImporter {
         MongoDatabase database = mongoClient.getDatabase(DATABASE);
         MongoCollection<Document> collection = database.getCollection(COLLECTION);
 
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String headerLine = br.readLine(); // lê o cabeçalho
             if (headerLine == null) {
@@ -47,7 +51,7 @@ public class MongoImporter {
             String line;
 
             while ((line = br.readLine()) != null) {
-                String[] values = line.split(";", -1); // -1 inclui campos vazios
+                String[] values = line.split(";", -1);
 
                 if (values.length != headers.length) {
                     System.out.println("❌ Linha ignorada (colunas diferentes): " + Arrays.toString(values));
@@ -55,33 +59,57 @@ public class MongoImporter {
                 }
 
                 Document doc = new Document();
+
                 for (int i = 0; i < headers.length; i++) {
                     String key = headers[i].trim();
                     String value = values[i].trim();
 
                     if (value.equalsIgnoreCase("\\N") || value.isEmpty()) {
                         doc.append(key, null);
-                    } else {
-                        doc.append(key, value);
+                        continue;
+                    }
+
+                    try {
+                        switch (key) {
+                            // Inteiros
+                            case "item_id", "qty_ordered", "year", "month", "customer_id":
+                                doc.append(key, Integer.parseInt(value));
+                                break;
+                            case "increment_id":
+                                doc.append(key, Long.parseLong(value));
+                                break;
+                            // Decimais
+                            case "price", "grand_total", "mv", "discount_amount":
+                                doc.append(key, Double.parseDouble(value));
+                                break;
+                            // Datas
+                            case "created_at", "working_date", "customer_since":
+                                doc.append(key, LocalDate.parse(value, dateFormatter));
+                                break;
+                            // Strings
+                            default:
+                                doc.append(key, value);
+                                break;
+                        }
+                    } catch (Exception e) {
+                        doc.append(key, null); // evita erro se conversão falhar
                     }
                 }
 
                 batch.add(doc);
 
-                // Se atingiu o tamanho do batch, insere todos os documentos de uma vez
                 if (batch.size() >= BATCH_SIZE) {
                     try {
                         collection.insertMany(batch);
                         insertedCount += batch.size();
                         System.out.println("✅ Batch de " + batch.size() + " documentos inserido com sucesso.");
-                        batch.clear(); // Limpa o batch após a inserção
+                        batch.clear();
                     } catch (Exception e) {
                         System.out.println("Erro ao inserir documentos em batch: " + e.getMessage());
                     }
                 }
             }
 
-            // Verifica se ainda há documentos restantes após o loop
             if (!batch.isEmpty()) {
                 try {
                     collection.insertMany(batch);

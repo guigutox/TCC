@@ -1,4 +1,4 @@
-package org.example.Repository;
+package org.example;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -12,8 +12,9 @@ public class QueryExecutor {
     private final MongoCollection<Document> collection;
 
     public QueryExecutor(MongoDatabase database) {
-        this.collection = database.getCollection("listings");
+        this.collection = database.getCollection("orders"); // aqui estava "listings"
     }
+
 
     // Interface funcional para uma query
     @FunctionalInterface
