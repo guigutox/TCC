@@ -74,18 +74,21 @@ public class Main {
             System.out.println("Q2: Pedidos por payment_method -> " + list.size());
         });
 
-// Q3: Pedidos por ano e mês (2016–2018), ordenados cronologicamente
+// Q3: Pedidos por ano/mês (remove nulos)
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     addFields(new Field<>("yearNum", new Document("$convert",
                             new Document("input", "$Year").append("to", "int").append("onError", null).append("onNull", null)))),
                     addFields(new Field<>("monthNum", new Document("$convert",
                             new Document("input", "$Month").append("to", "int").append("onError", null).append("onNull", null)))),
+                    match(and(ne("yearNum", null), ne("monthNum", null))),
                     group(new Document("year", "$yearNum").append("month", "$monthNum"), sum("totalOrders", 1)),
                     sort(ascending("_id.year", "_id.month"))
             )).into(new ArrayList<>());
-            System.out.println("Q3: Pedidos por ano/mês -> " + list.size());
+            System.out.println("Q3 ajustada -> " + list.size());
         });
+
+// Q4: Top 10 clientes por faturamento (remove normalização extra)
 
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
@@ -170,7 +173,6 @@ public class Main {
         });
 
 // Q9: Total de pedidos e receita por payment_method
-// Mongo
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     group("$payment_method",
@@ -185,17 +187,17 @@ public class Main {
         });
 
 
-// Q10: Pedidos por dia da semana (com base em "Working Date", dd/MM/yyyy)
+// Q10: Pedidos por dia da semana (usa números 0–6 como no SQL EXTRACT(DOW))
         executor.addQuery(coll -> {
             var dateExpr = new Document("$dateFromString",
                     new Document("dateString", "$Working Date").append("format", "%d/%m/%Y").append("onError", null).append("onNull", null));
             var list = coll.aggregate(Arrays.asList(
-                    addFields(new Field<>("dow", new Document("$dayOfWeek", dateExpr))),
+                    addFields(new Field<>("dow", new Document("$subtract", Arrays.asList(new Document("$dayOfWeek", dateExpr), 1)))),
                     match(ne("dow", null)),
                     group("$dow", sum("totalOrders", 1)),
                     sort(ascending("_id"))
             )).into(new ArrayList<>());
-            System.out.println("Q10: Pedidos por dia da semana -> " + list.size());
+            System.out.println("Q10 ajustada -> " + list.size());
         });
 
 // Q11: Faturamento total por ano
@@ -211,7 +213,7 @@ public class Main {
             System.out.println("Q11: Faturamento por ano -> " + list.size());
         });
 
-// Q12: Desconto total por categoria
+// Q12: Desconto total por categoria (mantém limit 10)
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     group("$category_name_1",
@@ -220,7 +222,7 @@ public class Main {
                     sort(descending("totalDiscount")),
                     limit(10)
             )).into(new ArrayList<>());
-            System.out.println("Q12: Desconto total por categoria -> " + list.size());
+            System.out.println("Q12 ajustada -> " + list.size());
         });
 
 // Q13: Taxa de cancelamento por ano (canceled / total)
@@ -360,6 +362,7 @@ public class Main {
             System.out.println("Q19: Taxa média de desconto por método -> " + list.size());
         });
 
+// Q20: Top 5 clientes por ticket médio (mínimo 2 pedidos)
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     // normaliza customer

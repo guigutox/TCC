@@ -131,11 +131,17 @@ public class Main {
                 executor.execute("SELECT neighbourhood, room_type, AVG(price) AS avg_price " +
                         "FROM listings GROUP BY neighbourhood, room_type ORDER BY avg_price DESC;");
 
-// Q22: Top 5 bairros com mais reviews no último ano
-                executor.execute("SELECT l.neighbourhood, COUNT(r.id) AS total_reviews " +
-                        "FROM listings l LEFT JOIN reviews r ON l.id = r.listing_id " +
-                        "WHERE r.date >= (CURRENT_DATE - INTERVAL '1 year') " +
-                        "GROUP BY l.neighbourhood ORDER BY total_reviews DESC LIMIT 5;");
+
+// Q22: Top 5 room types com maior preço médio (listings com >=5 reviews)
+                executor.execute(
+                        "SELECT room_type, AVG(price) AS avg_price, COUNT(*) AS total_listings " +
+                                "FROM listings " +
+                                "WHERE number_of_reviews >= 5 " +
+                                "GROUP BY room_type " +
+                                "ORDER BY avg_price DESC " +
+                                "LIMIT 5;"
+                );
+
 
 // Q23: Hosts com maior preço médio entre seus listings
                 executor.execute("SELECT host_id, AVG(price) AS avg_price, COUNT(*) AS total_listings " +

@@ -5,20 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdc8c0bd-c93d-4edf-9c02-7303e2e89cd7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/.idea/copilot.data.migration.agent.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/.idea/copilot.data.migration.edit.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/.idea/discord.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.agent.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.edit.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../BenchmarkSQL_Pakistan/.idea/copilot.data.migration.agent.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../BenchmarkSQL_Pakistan/.idea/copilot.data.migration.edit.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../BenchmarkSQL_Pakistan/.idea/discord.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../BenchmarkNoSQLArbnb/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../BenchmarkNoSQLArbnb/src/main/java/org/example/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BenchmarkNoSQLArbnb/src/main/java/org/example/Repository/QueryExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/../BenchmarkNoSQLArbnb/src/main/java/org/example/Repository/QueryExecutor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/src/main/java/org/example/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/src/main/java/org/example/MongoImporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../BenchmarkNoSQL_Pakistan/src/main/java/org/example/MongoImporter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../BenchmarkSQL_Pakistan/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../BenchmarkSQL_Pakistan/src/main/java/org/example/Main.java" afterDir="false" />
@@ -52,6 +40,7 @@
     &quot;Application.Main.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
@@ -95,7 +84,15 @@
       <workItem from="1757365387100" duration="44000" />
       <workItem from="1757365447728" duration="5470000" />
       <workItem from="1757540561697" duration="194000" />
-      <workItem from="1757545410143" duration="686000" />
+      <workItem from="1757545410143" duration="1390000" />
+      <workItem from="1757551909520" duration="2229000" />
+      <workItem from="1757628573805" duration="517000" />
+      <workItem from="1757630077354" duration="1580000" />
+      <workItem from="1757714218507" duration="7000" />
+      <workItem from="1757944856914" duration="641000" />
+      <workItem from="1757967015065" duration="164000" />
+      <workItem from="1758056579277" duration="1343000" />
+      <workItem from="1758060938985" duration="12000" />
     </task>
     <servers />
   </component>

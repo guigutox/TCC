@@ -101,56 +101,6 @@ public class Main {
     private static void runQueries(MongoDatabase database) {
         QueryExecutor executor = new QueryExecutor(database);
 
-       /* executor.addQuery(coll -> {
-            var list = coll.find(gt("price", 200)).into(new ArrayList<>());
-            System.out.println("Query 1: Listings com preço maior que 200 -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.aggregate(Arrays.asList(
-                    group("$neighbourhood", avg("avgPrice", "$price"))
-            )).into(new ArrayList<>());
-            System.out.println("Query 2: Média de preço por bairro -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.aggregate(Arrays.asList(
-                    project(new org.bson.Document("id", 1)
-                            .append("numberOfReviews", new org.bson.Document("$size", "$reviews")))
-            )).into(new ArrayList<>());
-            System.out.println("Query 3: Total de reviews por listing -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.find(eq("availability_365", 365)).into(new ArrayList<>());
-            System.out.println("Query 4: Listings disponíveis o ano inteiro (365 dias) -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.find(eq("room_type", "Entire home/apt")).into(new ArrayList<>());
-            System.out.println("Query 5: Listings que são Entire home/apt -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.find(gt("number_of_reviews", 50)).into(new ArrayList<>());
-            System.out.println("Query 6: Listings com mais de 50 reviews -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.aggregate(Arrays.asList(
-                    group("$neighbourhood", avg("avgReviews", "$number_of_reviews"))
-            )).into(new ArrayList<>());
-            System.out.println("Query 7: Média de reviews por bairro -> " + list.size() + " documentos retornados");
-        });
-
-        executor.addQuery(coll -> {
-            var list = coll.aggregate(Arrays.asList(
-                    new org.bson.Document("$unwind", "$reviews"),
-                    group("$neighbourhood", avg("avgReviewsPerListing", "$reviews.reviewer_id"))
-            )).into(new ArrayList<>());
-            System.out.println("Query 8: Média de reviews por bairro (usando unwind) -> " + list.size() + " documentos retornados");
-        });*/
-
 // 1) Listings por tipo de quarto
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
@@ -400,23 +350,23 @@ public class Main {
             list.forEach(doc -> System.out.println(doc.toJson()));
         });
 
-// 22) Top 5 bairros com mais reviews no último ano
-// Considera apenas reviews do último ano, agrupa por bairro, conta o total de reviews e retorna os 5 maiores
+// Q22: Top 5 room types com maior preço médio (listings com >=5 reviews)
         executor.addQuery(coll -> {
-            var oneYearAgo = java.time.LocalDate.now().minusYears(1).toString(); // "YYYY-MM-DD"
             var list = coll.aggregate(Arrays.asList(
-                    unwind("$reviews"),
-                    match(gte("reviews.date", oneYearAgo)),
-                    group("$neighbourhood", sum("totalReviews", 1)),
-                    sort(descending("totalReviews")),
-                    limit(5)
+                    match(gte("numberOfReviews", 5)),          // Filtra listings com >=5 reviews
+                    group("$roomType",
+                            avg("avgPrice", "$price"),             // Calcula preço médio
+                            sum("totalListings", 1)),              // Conta total de listings
+                    sort(descending("avgPrice")),              // Ordena do mais caro para o mais barato
+                    limit(5)                                   // Retorna top 5
             )).into(new ArrayList<>());
-            System.out.println("Q22: Top 5 bairros com mais reviews no último ano -> " + list.size());
+
+            System.out.println("Q22 nova: Top 5 room types com maior preço médio -> " + list.size());
             list.forEach(doc -> System.out.println(doc.toJson()));
         });
 
+
 // 23) Hosts com maior preço médio entre seus listings
-// Agrupa listings por host, calcula a média de preço e total de listings, filtra hosts com >=5 listings e retorna os 10 mais caros
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     group("$hostId",
@@ -431,7 +381,6 @@ public class Main {
         });
 
 // 24) Ranking de listings por número de reviews
-// Calcula a quantidade de reviews de cada listing, ordena do maior para o menor e retorna os 20 primeiros
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     project(fields(include("id","name"),
@@ -444,7 +393,6 @@ public class Main {
         });
 
 // 25) Mediana de preço por bairro
-// Agrupa os listings por bairro, cria array de preços, ordena o array e pega o valor do meio como mediana
         executor.addQuery(coll -> {
             var list = coll.aggregate(Arrays.asList(
                     group("$neighbourhood",
