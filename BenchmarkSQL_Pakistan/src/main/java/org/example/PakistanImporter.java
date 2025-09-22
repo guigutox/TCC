@@ -180,4 +180,19 @@ public class PakistanImporter {
             System.err.println("❌ Erro ao limpar tabela: " + e.getMessage());
         }
     }
+
+    public long executeUpdate(String sql) {
+        long start = System.currentTimeMillis();
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            conn.setAutoCommit(true);
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("⏱️ Tempo para executar update: " + (end - start) + " ms");
+        return end - start;
+    }
+
 }

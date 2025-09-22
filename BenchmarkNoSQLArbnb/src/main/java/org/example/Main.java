@@ -1,9 +1,7 @@
 package org.example;
 
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.BucketOptions;
-import com.mongodb.client.model.Field;
-import com.mongodb.client.model.UnwindOptions;
+import com.mongodb.client.model.*;
 import org.bson.Document;
 import org.example.models.Listing;
 import org.example.util.CsvReader;
@@ -98,10 +96,64 @@ public class Main {
                 limparBanco(database);
                 break;
             }
+            case 4:{
+                MongoDatabase database = MongoDBConnection.getDatabase();
+                aumentarPrecoListings(database);
+                break;
+            }
+            case 5:{
+                MongoDatabase database = MongoDBConnection.getDatabase();
+                descontoQuartoPrivado(database);
+                break;
+            }
+            case 6:{
+                MongoDatabase database = MongoDBConnection.getDatabase();
+                atualizarComentariosReviews(database);
+                break;
+            }
             default:
                 System.out.println("Ação inválida. Use: 1 inserir | 2 buscar");
         }
     }
+
+    public static void atualizarComentariosReviews(MongoDatabase database) {
+        MongoCollection<Document> listings = database.getCollection("listings");
+        // Atualiza reviews embutidos usando $[elem] (arrayFilters)
+        Document filtro = new Document("reviews.date", new Document("$gte", "2023-01-01"));
+        Document atualizacao = new Document("$set", new Document("reviews.$[elem].comments", "Atualizado para análise"));
+        // Array filter para reviews com data >= 2023-01-01
+        ArrayList<Document> arrayFilters = new ArrayList<>();
+        arrayFilters.add(new Document("elem.date", new Document("$gte", "2023-01-01")));
+        long start = System.currentTimeMillis();
+        listings.updateMany(filtro, atualizacao, new com.mongodb.client.model.UpdateOptions().arrayFilters(arrayFilters));
+        long end = System.currentTimeMillis();
+        System.out.println("Comentários de reviews atualizados. Tempo: " + (end - start) + " ms.");
+    }
+
+
+    public static void descontoQuartoPrivado(MongoDatabase database) {
+        MongoCollection<Document> listings = database.getCollection("listings");
+        long start = System.currentTimeMillis();
+        listings.updateMany(
+                Filters.eq("roomType", "Private room"),
+                Updates.mul("price", 0.9)
+        );
+        long end = System.currentTimeMillis();
+        System.out.println("Desconto aplicado em quartos privados. Tempo: " + (end - start) + " ms.");
+    }
+
+
+
+    public static void aumentarPrecoListings(MongoDatabase database) {
+        MongoCollection<Document> listings = database.getCollection("listings");
+        Document filtro = new Document(); // Atualiza todos os documentos
+        Document atualizacao = new Document("$inc", new Document("price", 10));
+        long start = System.currentTimeMillis();
+        listings.updateMany(filtro, atualizacao);
+        long end = System.currentTimeMillis();
+        System.out.println("Preço de todos os listings aumentado em 10. Tempo: " + (end - start) + " ms.");
+    }
+
 
 
     public static void limparBanco(MongoDatabase database) {

@@ -135,6 +135,10 @@ public class Main {
                     executor.execute("SELECT customer_id AS customer, AVG(grand_total) AS avg_ticket, COUNT(*) AS total_orders FROM pakistan_orders GROUP BY customer_id HAVING COUNT(*) >= 2 ORDER BY avg_ticket DESC LIMIT 5;");
 
                     break;
+                case 5:
+                    importer.executeUpdate("UPDATE pakistan_orders SET price = price + 10");
+                    System.out.println("Preços atualizados.");
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     return;

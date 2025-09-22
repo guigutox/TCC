@@ -49,6 +49,10 @@ public class Main {
                 MongoDatabase databasex = MongoDBConnection.getDatabase();
                 limparBanco(databasex);
                 break;
+            case 5:
+                MongoDatabase databasey = MongoDBConnection.getDatabase();
+                incrementarPreco(databasey);
+                break;
             default:
                 System.out.println("Opção inválida.");
         }
@@ -57,6 +61,20 @@ public class Main {
         /*long tempoBusca = importer.realizarBusca();
         System.out.println("Tempo de execução para busca: " + tempoBusca + " ms");*/
     }
+
+    public static void incrementarPreco(MongoDatabase database) {
+        MongoCollection<Document> collection = database.getCollection("orders");
+        long start = System.currentTimeMillis();
+        collection.updateMany(
+                new Document("price", new Document("$type", "number")),
+                new Document("$inc", new Document("price", 10))
+        );
+        long end = System.currentTimeMillis();
+        System.out.println("Preços incrementados em " + (end - start) + " ms.");
+    }
+
+
+
     public static void limparBanco(MongoDatabase database) {
         MongoCollection<Document> listings = database.getCollection("orders");
         long start = System.currentTimeMillis();

@@ -2,10 +2,7 @@ package org.example;
 
 import org.example.models.Listing;
 import org.example.repository.ListingRepositoryPostgres;
-import org.example.util.CsvReader;
-import org.example.util.DatabaseSetup;
-import org.example.util.DeleteExecutor;
-import org.example.util.QueryExecutor;
+import org.example.util.*;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -165,6 +162,15 @@ public class Main {
             } else if (opcao == 3) {
                 long tempo = DeleteExecutor.deleteAll(conn);
                 System.out.println("Registros deletados! Tempo gasto: " + tempo + " ms");
+            } else if (opcao == 4) {
+                UpdateExecutor updateExecutor = new UpdateExecutor(conn);
+                updateExecutor.executeUpdate("UPDATE listings SET price = price + 10;");
+            } else if (opcao == 5) {
+                UpdateExecutor updateExecutor = new UpdateExecutor(conn);
+                updateExecutor.executeUpdate("UPDATE listings SET price = price * 0.9 WHERE room_type = 'Private room'");
+            } else if (opcao == 6) {
+                UpdateExecutor updateExecutor = new UpdateExecutor(conn);
+                updateExecutor.executeUpdate("UPDATE reviews SET comments = 'Atualizado para análise 'WHERE date >= '2023-01-01'");
             } else {
                 System.out.println("Opção inválida.");
             }
