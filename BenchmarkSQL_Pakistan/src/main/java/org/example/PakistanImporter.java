@@ -168,10 +168,13 @@ public class PakistanImporter {
     }
 
     public void clearTable() {
-        String sql = "TRUNCATE TABLE pakistan_orders";
+        String sql = "DELETE FROM pakistan_orders";
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              Statement stmt = conn.createStatement()) {
+            long start = System.currentTimeMillis();
             stmt.execute(sql);
+            long end = System.currentTimeMillis();
+            System.out.println("⏱️ Tempo para limpar tabela: " + (end - start) + " ms");
             System.out.println("✅ Tabela limpa com sucesso.");
         } catch (SQLException e) {
             System.err.println("❌ Erro ao limpar tabela: " + e.getMessage());

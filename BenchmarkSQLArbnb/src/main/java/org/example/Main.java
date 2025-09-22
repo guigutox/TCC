@@ -4,6 +4,7 @@ import org.example.models.Listing;
 import org.example.repository.ListingRepositoryPostgres;
 import org.example.util.CsvReader;
 import org.example.util.DatabaseSetup;
+import org.example.util.DeleteExecutor;
 import org.example.util.QueryExecutor;
 
 import java.sql.Connection;
@@ -161,9 +162,13 @@ public class Main {
 
 
 
+            } else if (opcao == 3) {
+                long tempo = DeleteExecutor.deleteAll(conn);
+                System.out.println("Registros deletados! Tempo gasto: " + tempo + " ms");
             } else {
                 System.out.println("Opção inválida.");
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

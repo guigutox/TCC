@@ -39,8 +39,9 @@ public class DatabaseSetup {
                     reviewer_id VARCHAR,
                     reviewer_name VARCHAR,
                     comments TEXT
-                );
-            """;
+                    );
+                """;
+
 
             stmt.execute(createListings);
             stmt.execute(createReviews);

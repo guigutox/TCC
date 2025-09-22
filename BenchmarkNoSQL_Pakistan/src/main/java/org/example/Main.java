@@ -1,5 +1,6 @@
 package org.example;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Field;
 import com.mongodb.client.model.Sorts;
@@ -44,6 +45,10 @@ public class Main {
                 MongoDatabase database = MongoDBConnection.getDatabase();
                 runQueries(database);
                 break;
+            case 3:
+                MongoDatabase databasex = MongoDBConnection.getDatabase();
+                limparBanco(databasex);
+                break;
             default:
                 System.out.println("Opção inválida.");
         }
@@ -51,6 +56,13 @@ public class Main {
 
         /*long tempoBusca = importer.realizarBusca();
         System.out.println("Tempo de execução para busca: " + tempoBusca + " ms");*/
+    }
+    public static void limparBanco(MongoDatabase database) {
+        MongoCollection<Document> listings = database.getCollection("orders");
+        long start = System.currentTimeMillis();
+        listings.deleteMany(new Document());
+        long end = System.currentTimeMillis();
+        System.out.println("Banco limpo em " + (end - start) + " ms.");
     }
 
     private static void runQueries(MongoDatabase database) {

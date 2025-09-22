@@ -93,10 +93,26 @@ public class Main {
                 runQueries(database);
                 break;
             }
+            case 3:{
+                MongoDatabase database = MongoDBConnection.getDatabase();
+                limparBanco(database);
+                break;
+            }
             default:
                 System.out.println("Ação inválida. Use: 1 inserir | 2 buscar");
         }
     }
+
+
+    public static void limparBanco(MongoDatabase database) {
+        MongoCollection<Document> listings = database.getCollection("listings");
+        long start = System.currentTimeMillis();
+        listings.deleteMany(new Document());
+        long end = System.currentTimeMillis();
+        System.out.println("Banco limpo em " + (end - start) + " ms.");
+    }
+
+
 
     private static void runQueries(MongoDatabase database) {
         QueryExecutor executor = new QueryExecutor(database);
