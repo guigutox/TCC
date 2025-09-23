@@ -139,6 +139,14 @@ public class Main {
                     importer.executeUpdate("UPDATE pakistan_orders SET price = price + 10");
                     System.out.println("Preços atualizados.");
                     break;
+                case 6:
+                    importer.executeUpdate("UPDATE pakistan_orders SET discount_amount = discount_amount * 2 WHERE discount_amount > 0");
+                    System.out.println("Descontos atualizados.");
+                    break;
+                case 7:
+                    importer.executeUpdate("UPDATE pakistan_orders SET status = 'canceled' WHERE qty_ordered = 1;");
+                    System.out.println("Status atualizados.");
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     return;

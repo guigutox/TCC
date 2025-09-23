@@ -12,6 +12,10 @@ import java.util.Arrays;
 import java.util.Scanner;
 import org.example.MongoDBConnection;
 
+import org.bson.conversions.Bson;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
 
 import static com.mongodb.client.model.Accumulators.*;
 import static com.mongodb.client.model.Aggregates.*;
@@ -53,6 +57,14 @@ public class Main {
                 MongoDatabase databasey = MongoDBConnection.getDatabase();
                 incrementarPreco(databasey);
                 break;
+            case 6:
+                MongoDatabase databasez = MongoDBConnection.getDatabase();
+                dobrarDesconto(databasez);
+                break;
+            case 7:
+                MongoDatabase databaseA = MongoDBConnection.getDatabase();
+                cancelarPedidosComQuantidade(databaseA);
+                break;
             default:
                 System.out.println("Opção inválida.");
         }
@@ -61,6 +73,35 @@ public class Main {
         /*long tempoBusca = importer.realizarBusca();
         System.out.println("Tempo de execução para busca: " + tempoBusca + " ms");*/
     }
+
+    public static void cancelarPedidosComQuantidade(MongoDatabase database) {
+        MongoCollection<Document> orders = database.getCollection("orders");
+        Bson filtro = Filters.eq("qty_ordered", 1);
+        Bson atualizacao = Updates.set("status", "canceled");
+
+        long start = System.currentTimeMillis();
+        orders.updateMany(filtro, atualizacao);
+        long end = System.currentTimeMillis();
+
+        System.out.println("Update condicional (qty_ordered == 1 -> status canceled) concluído em " + (end - start) + " ms.");
+    }
+
+
+
+
+
+    public static void dobrarDesconto(MongoDatabase database) {
+        MongoCollection<Document> orders = database.getCollection("orders");
+        Bson filtro = Filters.gt("discount_amount", 0);
+        Bson atualizacao = Updates.mul("discount_amount", 2);
+
+        long start = System.currentTimeMillis();
+        orders.updateMany(filtro, atualizacao);
+        long end = System.currentTimeMillis();
+
+        System.out.println("Update condicional (dobrar desconto) concluído em " + (end - start) + " ms.");
+    }
+
 
     public static void incrementarPreco(MongoDatabase database) {
         MongoCollection<Document> collection = database.getCollection("orders");
